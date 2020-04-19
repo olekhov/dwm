@@ -131,7 +131,7 @@ static Key keys[] = {
 	TAGKEYS(			XK_9,			8)
 	{ MODKEY,                       XK_0,		view,		{.ui = ~0 } },
 	{ MODKEY|ShiftMask,		XK_0,		tag,		{.ui = ~0 } },
-	{ MODKEY,			XK_F2,		quit,		{0} },
+/*	{ MODKEY,			XK_F2,		quit,		{0} },*/
 	{ MODKEY,			XK_g,		shiftview,	{ .i = -1 } },
 	{ MODKEY,			XK_semicolon,	shiftview,	{ .i = 1 } },
 	{ MODKEY,			XK_Page_Up,	shiftview,	{ .i = -1 } },
