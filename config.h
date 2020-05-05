@@ -5,7 +5,12 @@ static const unsigned int borderpx  = 3;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
-static const char *fonts[]          = { "Terminus-14" };
+static const char *fonts[]          = {
+	"Terminus-14" ,
+	"FontAwesome:pixelsize=24",
+	"Font Awesome 5 Free Solid:pixelsize=24",
+	"JoyPixels:pixelsize=10:antialias=true:autohint=true" ,
+	"Symbola-14"};
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
@@ -24,10 +29,10 @@ static const unsigned int alphas[][3]      = {
 	[SchemeSel]  = { OPAQUE, baralpha, borderalpha },
 };
 static const char* const girl="1";
-static const char* const boy="2";
+static const char* const telegram="";
 
 
-static const char *tags[] = { girl, boy , "3", "4", "5", "6", "7", "8", "9" };
+static const char *tags[] = { girl , telegram, "3", "4", "5", "6", "7", "8", "" };
 
 /** Function to shift the current view to the left/right
  *
@@ -131,7 +136,7 @@ static Key keys[] = {
 	TAGKEYS(			XK_9,			8)
 	{ MODKEY,                       XK_0,		view,		{.ui = ~0 } },
 	{ MODKEY|ShiftMask,		XK_0,		tag,		{.ui = ~0 } },
-/*	{ MODKEY,			XK_F2,		quit,		{0} },*/
+	{ MODKEY,			XK_F2,		quit,		{0} },
 	{ MODKEY,			XK_g,		shiftview,	{ .i = -1 } },
 	{ MODKEY,			XK_semicolon,	shiftview,	{ .i = 1 } },
 	{ MODKEY,			XK_Page_Up,	shiftview,	{ .i = -1 } },

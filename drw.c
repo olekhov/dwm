@@ -135,19 +135,6 @@ xfont_create(Drw *drw, const char *fontname, FcPattern *fontpattern)
 		die("no font specified.");
 	}
 
-	/* Do not allow using color fonts. This is a workaround for a BadLength
-	 * error from Xft with color glyphs. Modelled on the Xterm workaround. See
-	 * https://bugzilla.redhat.com/show_bug.cgi?id=1498269
-	 * https://lists.suckless.org/dev/1701/30932.html
-	 * https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=916349
-	 * and lots more all over the internet.
-	 */
-	FcBool iscol;
-	if(FcPatternGetBool(xfont->pattern, FC_COLOR, 0, &iscol) == FcResultMatch && iscol) {
-		XftFontClose(drw->dpy, xfont);
-		return NULL;
-	}
-
 	font = ecalloc(1, sizeof(Fnt));
 	font->xfont = xfont;
 	font->pattern = pattern;
@@ -268,6 +255,7 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lp
 	FcPattern *match;
 	XftResult result;
 	int charexists = 0;
+	XftColor col_fg=drw->scheme[ColFg];
 
 	if (!drw || (render && !drw->scheme) || !text || !drw->fonts)
 		return 0;
@@ -287,6 +275,32 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lp
 		utf8strlen = 0;
 		utf8str = text;
 		nextfont = NULL;
+		/* check for ESC[38;2;R;G;Bm sequence, consume it and allocate new color */
+		if('\x1b' == *text) {
+			/* if it's "color reset" sequence, switch to default fg color */
+			if(0==strncmp("\x1b[0m", text, 4)) {
+				col_fg = drw->scheme[ColFg];
+				text+=4;
+				charexists=0;
+				continue;
+			} else {
+				int fg, t, r, g, b, n;
+				if( 5 == sscanf(text, "\x1b[%d;%d;%d;%d;%dm%n", &fg, &t, &r, &g, &b, &n)) {
+					if(fg==38 && t==2) {
+						char color[12]={0};
+						sprintf(color,"#%02x%02x%02x", r,g,b);
+						XftColorAllocName(drw->dpy, drw->visual, drw->cmap,
+								color, &col_fg);
+						text+=n;
+						charexists=0;
+					}
+				} else {
+					text++;
+				}
+				continue;
+			}
+		}
+		/* consume chars from text within current font */
 		while (*text) {
 			utf8charlen = utf8decode(text, &utf8codepoint, UTF_SIZ);
 			for (curfont = drw->fonts; curfont; curfont = curfont->next) {
@@ -323,7 +337,7 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lp
 
 				if (render) {
 					ty = y + (h - usedfont->h) / 2 + usedfont->xfont->ascent;
-					XftDrawStringUtf8(d, &drw->scheme[invert ? ColBg : ColFg],
+					XftDrawStringUtf8(d, invert? &drw->scheme[ColBg] : &col_fg,
 					                  usedfont->xfont, x, ty, (XftChar8 *)buf, len);
 				}
 				x += ew;
@@ -374,6 +388,7 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lp
 			}
 		}
 	}
+
 	if (d)
 		XftDrawDestroy(d);
 
