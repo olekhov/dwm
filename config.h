@@ -29,10 +29,13 @@ static const unsigned int alphas[][3]      = {
 	[SchemeSel]  = { OPAQUE, baralpha, borderalpha },
 };
 static const char* const girl="1";
-static const char* const telegram="";
+static const char* const telegram="\x1b[38;2;0;224;224m";
+static const char* const youtube="\x1b[38;2;224;0;0m\uf16a";
+static const char* const firefox="\x1b[38;2;255;148;0m";
 
 
-static const char *tags[] = { girl , telegram, "3", "4", "5", "6", "7", "8", "" };
+
+static const char *tags[] = { girl , telegram, "3", youtube, "5", "6", "7", "8", firefox };
 
 /** Function to shift the current view to the left/right
  *
